@@ -92,6 +92,22 @@ func GetCompletedReminderHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func CompleteReminderHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	idStr := mux.Vars(r)["id"]
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
+	err = database.CompleteReminder(id)
+	if err != nil {
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
 func GetPendingReminderDueAfterTodayHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	reminders, err := database.GetPendingReminderDueAfterToday()

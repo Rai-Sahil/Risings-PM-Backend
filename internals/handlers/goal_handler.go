@@ -32,11 +32,7 @@ func AddGoalHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusCreated)
-	_, err = w.Write([]byte("Goal was added successfully"))
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
+	_, _ = w.Write([]byte("Goal was added successfully"))
 }
 
 func GetGoalHandler(w http.ResponseWriter, r *http.Request) {

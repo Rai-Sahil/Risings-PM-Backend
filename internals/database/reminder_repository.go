@@ -1,6 +1,7 @@
 package database
 
 import (
+	"errors"
 	"pm_backend/internals/models"
 	"time"
 )
@@ -60,6 +61,32 @@ func GetCompletedReminder() ([]models.Reminder, error) {
 		return nil, err
 	}
 	return reminders, nil
+}
+
+func CompleteReminder(id int64) error {
+	db, err := Connect()
+	if err != nil {
+		return err
+	}
+
+	// Find the reminder by ID
+	var reminder models.Reminder
+	if err := db.First(&reminder, id).Error; err != nil {
+		return err
+	}
+
+	// Check if the reminder is already complete
+	if reminder.Status == "Complete" {
+		return errors.New("reminder is already marked as complete")
+	}
+
+	// Update the status to complete
+	reminder.Status = "Complete"
+	if err := db.Save(&reminder).Error; err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func GetPendingReminderDueAfterToday() ([]models.Reminder, error) {

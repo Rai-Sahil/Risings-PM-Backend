@@ -8,8 +8,10 @@ func InsertGoal(goal models.Goal) error {
 		return err
 	}
 
-	result := db.Create(&goal)
-	return result.Error
+	if err := db.Create(&goal).Error; err != nil {
+		return err
+	}
+	return nil
 }
 
 func GetAllGoals() ([]models.Goal, error) {
@@ -45,7 +47,7 @@ func GetGoalByGoalID(goalID int64) ([]models.Goal, error) {
 	}
 
 	var goals []models.Goal
-	if err = db.Where("goal_id = ?", goalID).
+	if err = db.Where("id = ?", goalID).
 		Preload("Student").
 		Preload("Assignee").
 		Find(&goals).Error; err != nil {
@@ -62,7 +64,7 @@ func GetPendingGoalsByStudentID(studentID int64) ([]models.Goal, error) {
 
 	var goals []models.Goal
 	if err = db.Where("student_id = ?", studentID).
-		Not("status = ?", "Pending").
+		Where("status = ?", "Pending").
 		Preload("Assignee").
 		Find(&goals).Error; err != nil {
 		return nil, err

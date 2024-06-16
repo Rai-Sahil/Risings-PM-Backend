@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
 	"pm_backend/internals/database"
@@ -42,12 +43,31 @@ func GetStudentHandler(w http.ResponseWriter, r *http.Request) {
 	students, err := database.GetAllStudents()
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
 		return
 	}
 	err = json.NewEncoder(w).Encode(students)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
 		return
 	}
 	w.WriteHeader(http.StatusOK)
+}
+
+func GetStudentByIDHandler(w http.ResponseWriter, r *http.Request) {
+	studentID := mux.Vars(r)["studentID"]
+	student, err := database.GetStudentByID(studentID)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(student); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+	w.WriteHeader(http.StatusOK)
+
 }

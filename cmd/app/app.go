@@ -2,19 +2,30 @@ package main
 
 import (
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	"net/http"
 	"pm_backend/internals/app"
 )
 
 func main() {
-	r := mux.NewRouter()
+	router := mux.NewRouter()
 
-	app.UserRoutes(r)
-	app.StudentRoutes(r)
-	app.GoalRoutes(r)
-	app.ReminderRoutes(r)
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders:   []string{"*"},
+		AllowCredentials: true,
+	})
 
-	err := http.ListenAndServe(":8080", r)
+	handler := c.Handler(router)
+
+	app.UserRoutes(router)
+	app.StudentRoutes(router)
+	app.GoalRoutes(router)
+	app.ReminderRoutes(router)
+	app.TaskRoutes(router)
+
+	err := http.ListenAndServe(":8080", handler)
 	if err != nil {
 		panic(err)
 	}

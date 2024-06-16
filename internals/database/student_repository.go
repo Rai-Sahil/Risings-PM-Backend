@@ -28,3 +28,16 @@ func GetAllStudents() ([]models.Student, error) {
 	}
 	return students, nil
 }
+
+func GetStudentByID(studentID string) (models.Student, error) {
+	db, err := Connect()
+	if err != nil {
+		return models.Student{}, err
+	}
+
+	var student models.Student
+	if err := db.Preload("Assignee").First(&student, studentID).Error; err != nil {
+		return models.Student{}, err
+	}
+	return student, nil
+}
