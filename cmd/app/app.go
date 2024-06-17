@@ -24,6 +24,7 @@ func main() {
 	app.GoalRoutes(router)
 	app.ReminderRoutes(router)
 	app.TaskRoutes(router)
+	app.AuthRoutes(router)
 
 	err := http.ListenAndServe(":8080", handler)
 	if err != nil {
