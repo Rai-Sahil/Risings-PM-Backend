@@ -2,6 +2,7 @@ package database
 
 import (
 	"pm_backend/internals/models"
+	"time"
 )
 
 func InsertTask(task models.Task) error {
@@ -92,6 +93,27 @@ func GetTasksByGoalId(goalId int64) ([]models.Task, error) {
 
 	var tasks []models.Task
 	if err := db.Where("goal_id = ?", goalId).Find(&tasks).Error; err != nil {
+		return nil, err
+	}
+	return tasks, nil
+}
+
+func GetTasksDueThisWeek() ([]models.Task, error) {
+	db, err := Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	now := time.Now()
+	startOfWeek := now.AddDate(0, 0, -int(now.Weekday()))
+	endOfWeek := startOfWeek.AddDate(0, 0, 6)
+
+	var tasks []models.Task
+	if err := db.
+		Where("due_date >= ? AND due_date <= ?",
+			startOfWeek.Format("2006-01-02"),
+			endOfWeek.Format("2006-01-02")).
+		Find(&tasks).Error; err != nil {
 		return nil, err
 	}
 	return tasks, nil

@@ -11,6 +11,7 @@ func TaskRoutes(r *mux.Router) {
 	r.HandleFunc("/addComment", handlers.AddCommentHandler).Methods("POST")
 
 	// GET
+	r.HandleFunc("/getTasksDueThisWeek", handlers.GetTasksDueThisWeekHandler).Methods("GET")
 	r.HandleFunc("/getTaskById/{task_id}", handlers.GetTaskByIdHandler).Methods("GET")
 	r.HandleFunc("/getPendingAdminTasks", handlers.GetPendingAdminTasksHandler).Methods("GET")
 	r.HandleFunc("/getTasksByGoalId/{goal_id}", handlers.GetTasksByGoalIdHandler).Methods("GET")

@@ -41,10 +41,9 @@ func GetPendingReminderDueToday() ([]models.Reminder, error) {
 	}
 
 	var reminders []models.Reminder
-	today := time.Now().Format(`2006-01-02`)
+	today := time.Now().Format("2006-01-02")
 
-	if err := db.Where("status = ? AND DATE(due_date) = ?", "Pending", today).
-		Find(&reminders).Error; err != nil {
+	if err := db.Where("status = ? AND DATE(due_date) = ?", "Pending", today).Find(&reminders).Error; err != nil {
 		return nil, err
 	}
 	return reminders, nil
@@ -96,10 +95,9 @@ func GetPendingReminderDueAfterToday() ([]models.Reminder, error) {
 	}
 
 	var reminders []models.Reminder
-	today := time.Now().Format(`2006-01-02`)
+	today := time.Now().Format("2006-01-02")
 
-	if err := db.Where("status = ? AND due_date > ?", "Pending", today).
-		Find(&reminders).Error; err != nil {
+	if err := db.Where("status = ? AND DATE(due_date) > ?", "Pending", today).Find(&reminders).Error; err != nil {
 		return nil, err
 	}
 	return reminders, nil
