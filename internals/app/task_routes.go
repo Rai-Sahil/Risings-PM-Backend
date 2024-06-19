@@ -17,4 +17,6 @@ func TaskRoutes(r *mux.Router) {
 	r.HandleFunc("/getTasksByGoalId/{goal_id}", handlers.GetTasksByGoalIdHandler).Methods("GET")
 	r.HandleFunc("/getTasksLengthByGoalId/{goal_id}", handlers.GetTasksLengthByGoalIdHandler).Methods("GET")
 	r.HandleFunc("/getCommentsByTaskId/{task_id}", handlers.GetCommentsByTaskIdHandler).Methods("GET")
+	r.HandleFunc("/getTasksCountByUserIdThisWeek/{user_id}", handlers.GetTotalTasksByUserIdThisWeekCountHandler).
+		Methods("GET")
 }

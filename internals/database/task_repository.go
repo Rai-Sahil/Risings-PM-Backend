@@ -118,3 +118,15 @@ func GetTasksDueThisWeek() ([]models.Task, error) {
 	}
 	return tasks, nil
 }
+
+func GetTotalTasksByUserIdThisWeekCount(userId int64) (int64, error) {
+	db, err := Connect()
+	if err != nil {
+		return -1, err
+	}
+	var count int64
+	if err := db.Model(models.Task{}).Where("id = ?", userId).Count(&count).Error; err != nil {
+		return -1, err
+	}
+	return count, nil
+}

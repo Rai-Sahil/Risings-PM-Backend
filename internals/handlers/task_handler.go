@@ -183,3 +183,24 @@ func GetTasksDueThisWeekHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.WriteHeader(http.StatusOK)
 }
+
+func GetTotalTasksByUserIdThisWeekCountHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	userIdStr := mux.Vars(r)["user_id"]
+	userId, err := strconv.ParseInt(userIdStr, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
+	count, err := database.GetTotalTasksByUserIdThisWeekCount(userId)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+	if err := json.NewEncoder(w).Encode(count); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+	w.WriteHeader(http.StatusOK)
+}

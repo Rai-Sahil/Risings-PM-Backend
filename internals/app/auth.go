@@ -4,11 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net/http"
-
 	"github.com/gorilla/mux"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/microsoft"
+	"net/http"
+	"pm_backend/internals/database"
+	"pm_backend/internals/models"
 )
 
 var (
@@ -48,12 +49,24 @@ func handleMicrosoftCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Construct the redirect URL with user info as query parameters
-	redirectURL := fmt.Sprintf("http://localhost:5173/auth/callback?name=%s&email=%s", userInfo["displayName"], userInfo["mail"])
+	// Create a new user object with the retrieved information
+	user := models.User{
+		Name:  userInfo["displayName"].(string),
+		Email: userInfo["mail"].(string),
+	}
+
+	// Insert the user into the database
+	userID, err := database.InsertUser(user)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to insert user: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Redirect to the callback URL with the user details and userID
+	redirectURL := fmt.Sprintf("http://localhost:5173/auth/callback?name=%s&email=%s&userID=%d", user.Name, user.Email, userID)
 	http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 }
 
-// getUserInfo retrieves user information from Microsoft Graph API
 func getUserInfo(accessToken string) (map[string]interface{}, error) {
 	url := "https://graph.microsoft.com/v1.0/me"
 
