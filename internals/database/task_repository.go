@@ -92,7 +92,7 @@ func GetTasksByGoalId(goalId int64) ([]models.Task, error) {
 	}
 
 	var tasks []models.Task
-	if err := db.Where("goal_id = ?", goalId).Find(&tasks).Error; err != nil {
+	if err := db.Where("goal_id = ?", goalId).Preload("Goal").Find(&tasks).Error; err != nil {
 		return nil, err
 	}
 	return tasks, nil
@@ -124,8 +124,45 @@ func GetTotalTasksByUserIdThisWeekCount(userId int64) (int64, error) {
 	if err != nil {
 		return -1, err
 	}
+
+	now := time.Now()
+
+	offset := (int(time.Sunday) - int(now.Weekday()) - 7) % 7
+	startOfWeek := now.AddDate(0, 0, offset)
+	startOfWeek = time.Date(startOfWeek.Year(), startOfWeek.Month(), startOfWeek.Day(), 0, 0, 0, 0, startOfWeek.Location())
+
+	endOfWeek := startOfWeek.AddDate(0, 0, 7)
+
 	var count int64
-	if err := db.Model(models.Task{}).Where("id = ?", userId).Count(&count).Error; err != nil {
+	if err := db.Model(models.Task{}).
+		Where("assignee_id = ? AND due_date BETWEEN ? AND ?", userId, startOfWeek, endOfWeek).
+		Count(&count).Error; err != nil {
+		return -1, err
+	}
+	return count, nil
+}
+
+func GetTasksCompleteByUserIdThisWeekCount(userId int64) (int64, error) {
+	db, err := Connect()
+	if err != nil {
+		return -1, err
+	}
+
+	// Get the current time
+	now := time.Now()
+
+	// Calculate the start of the week (assuming week starts on Sunday)
+	offset := (int(time.Sunday) - int(now.Weekday()) - 7) % 7
+	startOfWeek := now.AddDate(0, 0, offset)
+	startOfWeek = time.Date(startOfWeek.Year(), startOfWeek.Month(), startOfWeek.Day(), 0, 0, 0, 0, startOfWeek.Location())
+
+	// Calculate the end of the week
+	endOfWeek := startOfWeek.AddDate(0, 0, 7)
+
+	var count int64
+	if err := db.Model(models.Task{}).
+		Where("assignee_id = ? AND status = ? AND created_at BETWEEN ? AND ?", userId, "Completed", startOfWeek, endOfWeek).
+		Count(&count).Error; err != nil {
 		return -1, err
 	}
 	return count, nil

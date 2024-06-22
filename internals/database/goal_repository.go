@@ -14,6 +14,21 @@ func InsertGoal(goal models.Goal) error {
 	return nil
 }
 
+func GetPendingGoalsCountByUserId(userId int64) (int64, error) {
+	db, err := Connect()
+	if err != nil {
+		return -1, err
+	}
+	var count int64
+	if err := db.
+		Where("assignee_id = ? AND status = ?", userId, "Completed").
+		Model(&models.Goal{}).
+		Count(&count).Error; err != nil {
+		return -1, err
+	}
+	return count, nil
+}
+
 func GetAllGoals() ([]models.Goal, error) {
 	db, err := Connect()
 	if err != nil {
