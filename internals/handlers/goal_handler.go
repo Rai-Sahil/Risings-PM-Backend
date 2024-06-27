@@ -35,7 +35,7 @@ func AddGoalHandler(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write([]byte("Goal was added successfully"))
 }
 
-func GetPendingGoalCountByUserIDHandler(w http.ResponseWriter, r *http.Request) {
+func GetPendingGoalsCountByUserIDHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	userIdStr := mux.Vars(r)["user_id"]
 	userId, err := strconv.ParseInt(userIdStr, 10, 64)

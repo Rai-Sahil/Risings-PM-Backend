@@ -21,7 +21,7 @@ func GetPendingGoalsCountByUserId(userId int64) (int64, error) {
 	}
 	var count int64
 	if err := db.
-		Where("assignee_id = ? AND status = ?", userId, "Completed").
+		Where("assignee_id = ? AND status != ?", userId, "Completed").
 		Model(&models.Goal{}).
 		Count(&count).Error; err != nil {
 		return -1, err
@@ -78,7 +78,7 @@ func GetPendingGoalsByStudentID(studentID int64) ([]models.Goal, error) {
 	}
 
 	var goals []models.Goal
-	if err = db.Where("student_id = ?", studentID).
+	if err := db.Where("student_id = ?", studentID).
 		Where("status = ?", "Pending").
 		Preload("Assignee").
 		Find(&goals).Error; err != nil {
