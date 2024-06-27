@@ -21,4 +21,7 @@ func TaskRoutes(r *mux.Router) {
 		Methods("GET")
 	r.HandleFunc("/getCompletedTasksByUserId/{user_id}", handlers.GetTasksCompleteByUserIdThisWeekHandler).
 		Methods("GET")
+
+	r.HandleFunc("/getPendingTasksDueToday/{user_id}", handlers.GetPendingTasksDueTodayCountHandler).Methods("GET")
+	r.HandleFunc("/getCompletedTasksDueToday/{user_id}", handlers.GetCompletedTasksDueTodayCountHandler).Methods("GET")
 }

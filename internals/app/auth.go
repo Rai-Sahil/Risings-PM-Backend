@@ -49,21 +49,25 @@ func handleMicrosoftCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create a new user object with the retrieved information
 	user := models.User{
 		Name:  userInfo["displayName"].(string),
 		Email: userInfo["mail"].(string),
 	}
 
-	// Insert the user into the database
 	userID, err := database.InsertUser(user)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to insert user: %v", err), http.StatusInternalServerError)
 		return
 	}
 
-	// Redirect to the callback URL with the user details and userID
-	redirectURL := fmt.Sprintf("http://localhost:5173/auth/callback?name=%s&email=%s&userID=%d", user.Name, user.Email, userID)
+	http.SetCookie(w, &http.Cookie{
+		Name:     "userID",
+		Value:    fmt.Sprintf("%d", userID),
+		Path:     "/",
+		HttpOnly: true,
+	})
+
+	redirectURL := "http://localhost:5173/auth/callback"
 	http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 }
 
@@ -92,7 +96,35 @@ func getUserInfo(accessToken string) (map[string]interface{}, error) {
 	return userInfo, nil
 }
 
+func getUserDetails(w http.ResponseWriter, r *http.Request) {
+	cookie, err := r.Cookie("userID")
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	userID := cookie.Value
+
+	var user models.User
+	if err := database.DB.First(&user, userID).Error; err != nil {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+
+	userDetails := map[string]interface{}{
+		"id":    user.ID,
+		"name":  user.Name,
+		"email": user.Email,
+	}
+
+	err = json.NewEncoder(w).Encode(userDetails)
+	if err != nil {
+		return
+	}
+}
+
 func AuthRoutes(r *mux.Router) {
 	r.HandleFunc("/auth/signin", handleMicrosoftLogin).Methods("GET")
 	r.HandleFunc("/auth/callback", handleMicrosoftCallback).Methods("GET")
+	r.HandleFunc("/auth/user", getUserDetails).Methods("GET")
 }

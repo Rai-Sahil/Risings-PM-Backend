@@ -167,3 +167,43 @@ func GetTasksCompleteByUserIdThisWeekCount(userId int64) (int64, error) {
 	}
 	return count, nil
 }
+
+func GetPendingTasksCountDueTodayByUserId(userId int64) (int64, error) {
+	db, err := Connect()
+	if err != nil {
+		return -1, err
+	}
+
+	now := time.Now().Format("2006-01-02")
+	var count int64
+
+	err = db.Model(models.Task{}).
+		Where("assignee_id = ? AND due_date = ? AND status = ?", userId, now, "Pending").
+		Count(&count).Error
+
+	if err != nil {
+		return -1, err
+	}
+
+	return count, nil
+}
+
+func GetCompletedTasksCountDueTodayByUserId(userId int64) (int64, error) {
+	db, err := Connect()
+	if err != nil {
+		return -1, err
+	}
+
+	now := time.Now().Format("2006-01-02")
+	var count int64
+
+	err = db.Model(models.Task{}).
+		Where("assignee_id = ? AND due_date = ? AND status = ?", userId, now, "Completed").
+		Count(&count).Error
+
+	if err != nil {
+		return -1, err
+	}
+
+	return count, nil
+}
