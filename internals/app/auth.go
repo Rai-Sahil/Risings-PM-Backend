@@ -67,7 +67,7 @@ func handleMicrosoftCallback(w http.ResponseWriter, r *http.Request) {
 		HttpOnly: true,
 	})
 
-	redirectURL := "https://risings-pm-frontend.vercel.app/auth/callback"
+	redirectURL := "https://pm-frontend-swart.vercel.app/auth/callback"
 	http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 }
 
