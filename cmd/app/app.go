@@ -4,6 +4,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	"net/http"
+	"os"
 	"pm_backend/internals/app"
 )
 
@@ -26,7 +27,12 @@ func main() {
 	app.TaskRoutes(router)
 	app.AuthRoutes(router)
 
-	err := http.ListenAndServe(":9999", handler)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	err := http.ListenAndServe(":"+port, handler)
 	if err != nil {
 		panic(err)
 	}
