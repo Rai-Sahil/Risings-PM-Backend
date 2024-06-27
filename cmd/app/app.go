@@ -26,7 +26,7 @@ func main() {
 	app.TaskRoutes(router)
 	app.AuthRoutes(router)
 
-	err := http.ListenAndServe(":8080", handler)
+	err := http.ListenAndServe(":9999", handler)
 	if err != nil {
 		panic(err)
 	}
