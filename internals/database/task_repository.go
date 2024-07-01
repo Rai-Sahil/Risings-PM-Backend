@@ -66,7 +66,7 @@ func GetPendingAdminTasks() ([]models.Task, error) {
 	}
 
 	var tasks []models.Task
-	if err := db.Where("status = ? AND goal_id IS NULL", "Pending").Find(&tasks).Error; err != nil {
+	if err := db.Where("status = ? AND goal_id IS NULL", "Pending").Preload("Assignee").Find(&tasks).Error; err != nil {
 		return nil, err
 	}
 	return tasks, nil
@@ -92,7 +92,7 @@ func GetTasksByGoalId(goalId int64) ([]models.Task, error) {
 	}
 
 	var tasks []models.Task
-	if err := db.Where("goal_id = ?", goalId).Preload("Goal").Find(&tasks).Error; err != nil {
+	if err := db.Where("goal_id = ?", goalId).Preload("Assignee").Find(&tasks).Error; err != nil {
 		return nil, err
 	}
 	return tasks, nil
