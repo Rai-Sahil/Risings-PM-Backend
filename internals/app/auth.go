@@ -69,7 +69,7 @@ func handleMicrosoftCallback(w http.ResponseWriter, r *http.Request) {
 	})
 
 	// Redirect to the frontend callback URL
-	redirectURL := "http://54.218.199.46:80/auth/callback"
+	redirectURL := "http://54.218.199.46/auth/callback"
 	http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 }
 
