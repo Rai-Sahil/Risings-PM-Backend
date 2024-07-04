@@ -66,6 +66,8 @@ func handleMicrosoftCallback(w http.ResponseWriter, r *http.Request) {
 		Value:    fmt.Sprintf("%d", userID),
 		Path:     "/",
 		HttpOnly: true,
+		Secure:   true, // Set to true to ensure the cookie is only sent over HTTPS
+    		SameSite: http.SameSiteNoneMode, // Required for cross-site cookies
 	})
 
 	// Redirect to the frontend callback URL
