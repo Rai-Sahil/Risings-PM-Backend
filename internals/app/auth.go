@@ -73,7 +73,7 @@ func handleMicrosoftCallback(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Set userID cookie with value: %d\n", userID)
 
 	// Redirect to the frontend callback URL
-	redirectURL := "http://54.218.199.46/auth/callback"
+	redirectURL := "https://pm-frontend-8pre156nb-raisahils-projects.vercel.app/auth/callback"
 	http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 }
 
