@@ -41,3 +41,16 @@ func GetStudentByID(studentID string) (models.Student, error) {
 	}
 	return student, nil
 }
+
+func UpdateStudent(student models.Student) error {
+	db, err := Connect()
+	if err != nil {
+		return err
+	}
+
+	if err := db.Save(&student).Error; err != nil {
+		return err
+	}
+
+	return nil
+}

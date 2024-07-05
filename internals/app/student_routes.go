@@ -12,4 +12,5 @@ func StudentRoutes(r *mux.Router) {
 
 	//POST
 	r.HandleFunc("/addStudent", handlers.AddStudentHandler).Methods("POST")
+	r.HandleFunc("/updateStudent", handlers.UpdateStudentHandler).Methods("POST")
 }
