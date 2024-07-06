@@ -18,6 +18,18 @@ func InsertTask(task models.Task) error {
 	return nil
 }
 
+func UpdateTask(task models.Task) error {
+	db, err := Connect()
+	if err != nil {
+		return err
+	}
+
+	if err := db.Save(&task).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
 func InsertComment(comment models.Comment) error {
 	db, err := Connect()
 	if err != nil {
@@ -53,7 +65,7 @@ func GetTaskByID(taskID int64) (models.Task, error) {
 		return models.Task{}, err
 	}
 	var task models.Task
-	if err := db.Where("id = ?", taskID).Preload("Assignee").First(&task).Error; err != nil {
+	if err := db.Where("id = ?", taskID).Preload("Goal").Preload("Assignee").First(&task).Error; err != nil {
 		return models.Task{}, err
 	}
 

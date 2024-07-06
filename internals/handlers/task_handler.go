@@ -38,6 +38,34 @@ func AddTaskHandler(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write([]byte("Task added"))
 }
 
+func UpdateTaskHandler(w http.ResponseWriter, r *http.Request) {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+		return
+	}
+	defer r.Body.Close()
+
+	var task models.Task
+	err = json.Unmarshal(body, &task)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+		return
+	}
+
+	err = database.UpdateTask(task)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	_, _ = w.Write([]byte("Task updated"))
+}
+
 func AddCommentHandler(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {

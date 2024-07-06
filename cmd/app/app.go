@@ -13,7 +13,7 @@ func main() {
 
 	c := cors.New(cors.Options{
 		AllowedOrigins:   []string{"http://localhost:5173", "https://pm-frontend-swart.vercel.app", "http://localhost:80"},
-		AllowedMethods:   []string{"GET", "POST", "UPDATE", "PUT", "DELETE", "OPTIONS"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"*"},
 		AllowCredentials: true,
 	})
@@ -27,6 +27,7 @@ func main() {
 	app.TaskRoutes(router)
 	app.AuthRoutes(router)
 	app.CalenderRoutes(router)
+	app.SubTasksRoutes(router)
 
 	port := os.Getenv("PORT")
 	if port == "" {

@@ -10,7 +10,8 @@ func TaskRoutes(r *mux.Router) {
 	r.HandleFunc("/addTask", handlers.AddTaskHandler).Methods("POST")
 	r.HandleFunc("/addComment", handlers.AddCommentHandler).Methods("POST")
 	r.HandleFunc("/getTaskByGoalAndUserId", handlers.GetTasksByUserIdAndGoalIdHandler).Methods("POST")
-	r.HandleFunc("/getTasksDueThisWeekByUserId", handlers.GetTasksDueThisWeekHandler).Methods("POST")
+	r.HandleFunc("/getTasksDueThisWeekByUserId", handlers.GetTasksDueThisWeekByUserIdsHandler).Methods("POST")
+	r.HandleFunc("/updateTask", handlers.UpdateTaskHandler).Methods("POST")
 
 	// GET
 	r.HandleFunc("/getTasksDueThisWeek", handlers.GetTasksDueThisWeekHandler).Methods("GET")

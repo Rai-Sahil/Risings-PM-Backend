@@ -6,5 +6,6 @@ type SubTask struct {
 	AssigneeID int64  `gorm:"not null" json:"assignee_id"`
 	Assignee   User   `gorm:"foreignKey:AssigneeID;references:ID"`
 	TaskID     int64  `gorm:"not null" json:"task_id"`
+	Status     string `gorm:"size:255;default:'Pending'" json:"status"`
 	Task       Task   `gorm:"foreignKey:TaskID;references:ID"`
 }
