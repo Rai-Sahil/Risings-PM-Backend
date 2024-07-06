@@ -86,3 +86,20 @@ func GetPendingGoalsByStudentID(studentID int64) ([]models.Goal, error) {
 	}
 	return goals, nil
 }
+
+func GetPendingGoalsByUserId(userIds []int64) ([]models.Goal, error) {
+	db, err := Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	var goals []models.Goal
+	if err := db.
+		Where("assignee_id IN (?) and status != ?", userIds, "Completed").
+		Preload("Assignee").
+		Find(&goals).Error; err != nil {
+		return nil, err
+	}
+
+	return goals, nil
+}

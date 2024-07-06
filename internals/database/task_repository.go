@@ -1,6 +1,7 @@
 package database
 
 import (
+	"gorm.io/gorm"
 	"pm_backend/internals/models"
 	"time"
 )
@@ -98,6 +99,23 @@ func GetTasksByGoalId(goalId int64) ([]models.Task, error) {
 	return tasks, nil
 }
 
+func GetTasksByUserIdAndGoalId(userIds []int64, goalId int64) ([]models.Task, error) {
+	db, err := Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	var tasks []models.Task
+	if err := db.Where("goal_id = ? AND assignee_id IN (?)", goalId, userIds).
+		Preload("Assignee").
+		Order(gorm.Expr("CASE WHEN status = 'Overdue' THEN 1 WHEN status = 'In Progress' THEN 2 WHEN status = 'Pending' THEN 3 ELSE 4 END")).
+		Find(&tasks).Error; err != nil {
+		return nil, err
+	}
+
+	return tasks, nil
+}
+
 func GetTasksDueThisWeek() ([]models.Task, error) {
 	db, err := Connect()
 	if err != nil {
@@ -113,6 +131,7 @@ func GetTasksDueThisWeek() ([]models.Task, error) {
 		Where("due_date >= ? AND due_date <= ?",
 			startOfWeek.Format("2006-01-02"),
 			endOfWeek.Format("2006-01-02")).
+		Preload("Assignee").
 		Find(&tasks).Error; err != nil {
 		return nil, err
 	}
@@ -206,4 +225,24 @@ func GetCompletedTasksCountDueTodayByUserId(userId int64) (int64, error) {
 	}
 
 	return count, nil
+}
+
+func GetTasksDueThisWeekByUserIds(userIds []int64) ([]models.Task, error) {
+	db, err := Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	now := time.Now()
+	sevenDaysLater := now.AddDate(0, 0, 7)
+	var tasks []models.Task
+
+	if err := db.Where("assignee_id IN (?) AND due_date BETWEEN ? AND ?", userIds, now, sevenDaysLater).
+		Preload("Assignee").
+		Order("due_date ASC").
+		Find(&tasks).Error; err != nil {
+		return nil, err
+	}
+
+	return tasks, nil
 }

@@ -7,6 +7,7 @@ import (
 
 func GoalRoutes(r *mux.Router) {
 	r.HandleFunc("/addGoal", handlers.AddGoalHandler).Methods("POST")
+	r.HandleFunc("/getPendingGoalsByMultipleUserID", handlers.GetPendingGoalsByUserIdHandlers).Methods("POST")
 
 	r.HandleFunc("/getPendingGoalByUserID/{user_id}", handlers.GetPendingGoalsCountByUserIDHandler).Methods("GET")
 	r.HandleFunc("/getGoals", handlers.GetGoalHandler).Methods("GET")
