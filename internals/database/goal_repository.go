@@ -1,6 +1,8 @@
 package database
 
-import "pm_backend/internals/models"
+import (
+	"pm_backend/internals/models"
+)
 
 func InsertGoal(goal models.Goal) error {
 	db, err := Connect()
@@ -22,6 +24,21 @@ func GetPendingGoalsCountByUserId(userId int64) (int64, error) {
 	var count int64
 	if err := db.
 		Where("assignee_id = ? AND status != ?", userId, "Completed").
+		Model(&models.Goal{}).
+		Count(&count).Error; err != nil {
+		return -1, err
+	}
+	return count, nil
+}
+
+func GetInCompletedGoalsCountByStudentId(studentId int64) (int64, error) {
+	db, err := Connect()
+	if err != nil {
+		return -1, err
+	}
+	var count int64
+	if err := db.
+		Where("id = ? AND status = ?", studentId, "Pending").
 		Model(&models.Goal{}).
 		Count(&count).Error; err != nil {
 		return -1, err
@@ -102,4 +119,17 @@ func GetPendingGoalsByUserId(userIds []int64) ([]models.Goal, error) {
 	}
 
 	return goals, nil
+}
+
+func UpdateGoal(goal models.Goal) error {
+	db, err := Connect()
+	if err != nil {
+		return err
+	}
+
+	if err := db.Save(&goal).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

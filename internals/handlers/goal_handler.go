@@ -114,6 +114,27 @@ func GetGoalByStudentIDHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 }
 
+func GetInCompletedGoalsCountByStudentIdHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	studentIDStr := mux.Vars(r)["student_id"]
+	studentID, err := strconv.ParseInt(studentIDStr, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte("Invalid student ID"))
+	}
+
+	count, err := database.GetInCompletedGoalsCountByStudentId(studentID)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+	if err := json.NewEncoder(w).Encode(count); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
 func GetGoalByGoalIDHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	goalIDStr := mux.Vars(r)["goal_id"]
@@ -159,6 +180,30 @@ func GetPendingGoalsByUserIdHandlers(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = w.Write([]byte(err.Error()))
 		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func UpdateGoalHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var goal models.Goal
+
+	if err := json.NewDecoder(r.Body).Decode(&goal); err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+		return
+	}
+
+	if err := database.UpdateGoal(goal); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		_, _ = w.Write([]byte(err.Error()))
+		return
+	}
+
+	if err := json.NewEncoder(w).Encode(goal); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
 	}
 
 	w.WriteHeader(http.StatusOK)
