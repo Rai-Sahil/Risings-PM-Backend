@@ -95,6 +95,8 @@ func handleMicrosoftCallback(w http.ResponseWriter, r *http.Request) {
 		Expires:  time.Now().Add(24 * time.Hour), // Adjust as needed
 		Path:     "/",
 		HttpOnly: true,
+		Secure: true,
+		SameSite: http.SameSiteNoneMode,
 	}
 	http.SetCookie(w, &cookie)
 
