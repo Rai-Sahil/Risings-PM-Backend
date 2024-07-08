@@ -136,7 +136,7 @@ func getUserInfo(accessToken string) (map[string]interface{}, error) {
 
 func getUserDetails(w http.ResponseWriter, r *http.Request) {
 	tokenString, err := r.Cookie("userID")
-	fmt.Println(tokenString.Value, err)
+	fmt.Println(tokenString, err)
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
