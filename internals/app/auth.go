@@ -66,6 +66,8 @@ func handleMicrosoftCallback(w http.ResponseWriter, r *http.Request) {
 		Value:    fmt.Sprintf("%d", userID),
 		Path:     "/",
 		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode, // Ensure this is set for cross-origin cookies
 	})
 
 	fmt.Printf("Set userID cookie with value: %d\n", userID)
