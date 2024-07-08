@@ -105,7 +105,7 @@ func handleMicrosoftCallback(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(response)
 
 	// Redirect to frontend URL
-	redirectURL := "http://localhost:5173/auth/callback" // Adjust with your frontend URL
+	redirectURL := "https://pm-frontend-swart.vercel.app/auth/callback" // Adjust with your frontend URL
 	http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 }
 
