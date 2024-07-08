@@ -89,27 +89,24 @@ func handleMicrosoftCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cookie := http.Cookie{
-		Name:     "jwt",
+	response := map[string]interface{}{
+		"token": signedToken,
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "userID",
 		Value:    signedToken,
-		Expires:  time.Now().Add(24 * time.Hour), // Adjust as needed
 		Path:     "/",
 		HttpOnly: true,
+		Expires:  time.Now().Add(time.Hour * 24),
 		Secure:   true,
-		SameSite: http.SameSiteNoneMode,
-	}
-	http.SetCookie(w, &cookie)
+		SameSite: http.SameSiteLaxMode,
+	})
 
-	// Set JWT in response header
-	response := map[string]interface{}{
-		"message": "Authentication successful",
-	}
+	fmt.Printf("Set userID cookie with value: %d\n", userID)
+
+	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
-
-	// Redirect to the frontend callback URL
-	//redirectURL := "http://localhost:5173/auth/callback"
-	redirectURL := "https://pm-frontend-swart.vercel.app/auth/callback"
-	http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 }
 
 func getUserInfo(accessToken string) (map[string]interface{}, error) {
@@ -138,25 +135,28 @@ func getUserInfo(accessToken string) (map[string]interface{}, error) {
 }
 
 func getUserDetails(w http.ResponseWriter, r *http.Request) {
-	tokenString, err := r.Cookie("jwt")
+	tokenString, err := r.Cookie("userID")
+	fmt.Println(tokenString.Value, err)
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
 	token, err := jwt.Parse(tokenString.Value, func(token *jwt.Token) (interface{}, error) {
-		// Make sure that the token method conforms to signing method
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return jwtKey, nil
 	})
+
+	fmt.Println(err)
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
 	if !token.Valid {
+		fmt.Println("Token Not Valid")
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
