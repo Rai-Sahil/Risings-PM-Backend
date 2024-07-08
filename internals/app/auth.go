@@ -89,9 +89,9 @@ func handleMicrosoftCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	response := map[string]interface{}{
-		"token": signedToken,
-	}
+	//response := map[string]interface{}{
+	//	"token": signedToken,
+	//}
 
 	http.SetCookie(w, &http.Cookie{
 		Name:     "userID",
@@ -99,15 +99,11 @@ func handleMicrosoftCallback(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		HttpOnly: true,
 		Expires:  time.Now().Add(time.Hour * 24),
-		Secure:   true,
-		SameSite: http.SameSiteLaxMode,
-		Domain:   "pm-frontend-swart.vercel.app",
 	})
 
 	fmt.Printf("Set userID cookie with value: %d\n", userID)
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
+	redirectURL := `https://pm-frontend-swart.vercel.app/auth/callback/` + strconv.FormatInt(userID, 10)
+	http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 }
 
 func getUserInfo(accessToken string) (map[string]interface{}, error) {
@@ -136,39 +132,41 @@ func getUserInfo(accessToken string) (map[string]interface{}, error) {
 }
 
 func getUserDetails(w http.ResponseWriter, r *http.Request) {
-	tokenString, err := r.Cookie("userID")
-	fmt.Println(tokenString, err)
-	if err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
+	//tokenString, err := r.Cookie("userID")
+	//fmt.Println(tokenString, err)
+	//if err != nil {
+	//	http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	//	return
+	//}
+	//
+	//token, err := jwt.Parse(tokenString.Value, func(token *jwt.Token) (interface{}, error) {
+	//	if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+	//		return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+	//	}
+	//	return jwtKey, nil
+	//})
+	//
+	//fmt.Println(err)
+	//if err != nil {
+	//	http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	//	return
+	//}
+	//
+	//if !token.Valid {
+	//	fmt.Println("Token Not Valid")
+	//	http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	//	return
+	//}
+	//
+	//claims, ok := token.Claims.(jwt.MapClaims)
+	//if !ok || !token.Valid {
+	//	http.Error(w, "Unauthorized", http.StatusUnauthorized)
+	//	return
+	//}
 
-	token, err := jwt.Parse(tokenString.Value, func(token *jwt.Token) (interface{}, error) {
-		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
-		}
-		return jwtKey, nil
-	})
+	//userID := fmt.Sprintf("%v", claims["userID"])
 
-	fmt.Println(err)
-	if err != nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	if !token.Valid {
-		fmt.Println("Token Not Valid")
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok || !token.Valid {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	userID := fmt.Sprintf("%v", claims["userID"])
+	userID := mux.Vars(r)["userId"]
 
 	var user models.User
 	if err := database.DB.First(&user, userID).Error; err != nil {
@@ -182,7 +180,7 @@ func getUserDetails(w http.ResponseWriter, r *http.Request) {
 		"email": user.Email,
 	}
 
-	err = json.NewEncoder(w).Encode(userDetails)
+	err := json.NewEncoder(w).Encode(userDetails)
 	if err != nil {
 		return
 	}
@@ -191,5 +189,5 @@ func getUserDetails(w http.ResponseWriter, r *http.Request) {
 func AuthRoutes(r *mux.Router) {
 	r.HandleFunc("/auth/signin", handleMicrosoftLogin).Methods("GET")
 	r.HandleFunc("/auth/callback", handleMicrosoftCallback).Methods("GET")
-	r.HandleFunc("/auth/user", getUserDetails).Methods("GET")
+	r.HandleFunc("/auth/user/{userId}", getUserDetails).Methods("GET")
 }
