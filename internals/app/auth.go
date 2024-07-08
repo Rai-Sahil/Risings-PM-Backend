@@ -101,6 +101,7 @@ func handleMicrosoftCallback(w http.ResponseWriter, r *http.Request) {
 		Expires:  time.Now().Add(time.Hour * 24),
 		Secure:   true,
 		SameSite: http.SameSiteLaxMode,
+		Domain:   "pm-frontend-swart.vercel.app",
 	})
 
 	fmt.Printf("Set userID cookie with value: %d\n", userID)
