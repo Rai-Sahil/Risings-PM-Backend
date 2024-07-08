@@ -99,6 +99,8 @@ func handleMicrosoftCallback(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		HttpOnly: true,
 		Expires:  time.Now().Add(time.Hour * 24),
+		Secure:   true,
+		SameSite: http.SameSiteLaxMode,
 	})
 
 	fmt.Printf("Set userID cookie with value: %d\n", userID)
