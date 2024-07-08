@@ -16,7 +16,7 @@ var (
 	oauth2Config = &oauth2.Config{
 		ClientID:     "9e5a29ed-0e39-4234-86e8-0a7f9deac50e",
 		ClientSecret: "b_T8Q~iR~jGtJKVkoXoacEBqZeBbXX_.2UktBa1y",
-		RedirectURL:  "http://localhost:8080/auth/callback",
+		RedirectURL:  "https://risings-pm-backend-o5bz.onrender.com/auth/callback",
 		Scopes: []string{
 			"https://graph.microsoft.com/User.Read",
 		},
@@ -73,7 +73,8 @@ func handleMicrosoftCallback(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Set userID cookie with value: %d\n", userID)
 
 	// Redirect to the frontend callback URL
-	redirectURL := "http://localhost:5173/auth/callback"
+	//redirectURL := "http://localhost:5173/auth/callback"
+	redirectURL := "https://pm-frontend-swart.vercel.app/auth/callback"
 	http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 }
 

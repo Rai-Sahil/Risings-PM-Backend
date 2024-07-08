@@ -121,6 +121,20 @@ func GetPendingGoalsByUserId(userIds []int64) ([]models.Goal, error) {
 	return goals, nil
 }
 
+func GetInCompleteGoals() ([]models.Goal, error) {
+	db, err := Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	var goals []models.Goal
+	if err := db.Where("status != ?", "Complete").Find(&goals).Error; err != nil {
+		return nil, err
+	}
+
+	return goals, nil
+}
+
 func UpdateGoal(goal models.Goal) error {
 	db, err := Connect()
 	if err != nil {

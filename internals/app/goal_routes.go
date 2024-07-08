@@ -15,6 +15,7 @@ func GoalRoutes(r *mux.Router) {
 	r.HandleFunc("/getGoals/{goal_id}", handlers.GetGoalByGoalIDHandler).Methods("GET")
 	r.HandleFunc("/getPendingGoalsByStudentID/{student_id}", handlers.GetPendingGoalsByStudentIDHandler).Methods("GET")
 	r.HandleFunc("/getInCompletedGoalsCountById/{student_id}", handlers.GetInCompletedGoalsCountByStudentIdHandler).Methods("GET")
+	r.HandleFunc("/getPendingGoals", handlers.GetInCompleteGoalsHandler).Methods("GET")
 
 	r.HandleFunc("/updateGoal", handlers.UpdateGoalHandler).Methods("PUT")
 }

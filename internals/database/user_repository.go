@@ -30,3 +30,16 @@ func GetAllUsers() ([]models.User, error) {
 	db.Find(&users)
 	return users, nil
 }
+
+func GetUserDetails(userId []int64) ([]models.User, error) {
+	db, err := Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	var users []models.User
+	if err := db.Where("id IN (?)", userId).Find(&users).Error; err != nil {
+		return nil, err
+	}
+	return users, nil
+}
