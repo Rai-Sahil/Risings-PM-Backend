@@ -4,19 +4,22 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/mux"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/microsoft"
 	"net/http"
 	"pm_backend/internals/database"
 	"pm_backend/internals/models"
+	"strconv"
+	"time"
 )
 
 var (
 	oauth2Config = &oauth2.Config{
 		ClientID:     "9e5a29ed-0e39-4234-86e8-0a7f9deac50e",
 		ClientSecret: "b_T8Q~iR~jGtJKVkoXoacEBqZeBbXX_.2UktBa1y",
-		RedirectURL:  "https://risings-pm-backend-o5bz.onrender.com/auth/callback",
+		RedirectURL:  "http://localhost:8080/auth/callback",
 		Scopes: []string{
 			"https://graph.microsoft.com/User.Read",
 		},
@@ -24,6 +27,25 @@ var (
 	}
 	oauth2StateString = "random"
 )
+
+var jwtKey = []byte("your-secret-key")
+
+func generateJWT(userID string, name string, email string) (string, error) {
+	claims := jwt.MapClaims{
+		"userID": userID,
+		"name":   name,
+		"email":  email,
+		"exp":    time.Now().Add(time.Hour * 24).Unix(), // Token expiration time (e.g., 24 hours)
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	signedToken, err := token.SignedString(jwtKey)
+	if err != nil {
+		return "", err
+	}
+
+	return signedToken, nil
+}
 
 func handleMicrosoftLogin(w http.ResponseWriter, r *http.Request) {
 	url := oauth2Config.AuthCodeURL(oauth2StateString)
@@ -60,21 +82,30 @@ func handleMicrosoftCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Set HTTP-Only cookie with user ID
-	http.SetCookie(w, &http.Cookie{
-		Name:     "userID",
-		Value:    fmt.Sprintf("%d", userID),
+	// Generate JWT token
+	signedToken, err := generateJWT(strconv.FormatInt(userID, 10), user.Name, user.Email)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to generate JWT: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	cookie := http.Cookie{
+		Name:     "jwt",
+		Value:    signedToken,
+		Expires:  time.Now().Add(24 * time.Hour), // Adjust as needed
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteNoneMode, // Ensure this is set for cross-origin cookies
-	})
+	}
+	http.SetCookie(w, &cookie)
 
-	fmt.Printf("Set userID cookie with value: %d\n", userID)
+	// Set JWT in response header
+	response := map[string]interface{}{
+		"message": "Authentication successful",
+	}
+	json.NewEncoder(w).Encode(response)
 
-	// Redirect to the frontend callback URL
-	//redirectURL := "http://localhost:5173/auth/callback"
-	redirectURL := "https://pm-frontend-swart.vercel.app/auth/callback"
+	// Redirect to frontend URL
+	redirectURL := "http://localhost:5173/auth/callback" // Adjust with your frontend URL
 	http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 }
 
@@ -104,13 +135,36 @@ func getUserInfo(accessToken string) (map[string]interface{}, error) {
 }
 
 func getUserDetails(w http.ResponseWriter, r *http.Request) {
-	cookie, err := r.Cookie("userID")
+	tokenString, err := r.Cookie("jwt")
 	if err != nil {
 		http.Error(w, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
-	userID := cookie.Value
+	token, err := jwt.Parse(tokenString.Value, func(token *jwt.Token) (interface{}, error) {
+		// Make sure that the token method conforms to signing method
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return jwtKey, nil
+	})
+	if err != nil {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	if !token.Valid {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok || !token.Valid {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	userID := fmt.Sprintf("%v", claims["userID"])
 
 	var user models.User
 	if err := database.DB.First(&user, userID).Error; err != nil {
@@ -124,10 +178,7 @@ func getUserDetails(w http.ResponseWriter, r *http.Request) {
 		"email": user.Email,
 	}
 
-	err = json.NewEncoder(w).Encode(userDetails)
-	if err != nil {
-		return
-	}
+	json.NewEncoder(w).Encode(userDetails)
 }
 
 func AuthRoutes(r *mux.Router) {
