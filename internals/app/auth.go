@@ -19,7 +19,7 @@ var (
 	oauth2Config = &oauth2.Config{
 		ClientID:     "9e5a29ed-0e39-4234-86e8-0a7f9deac50e",
 		ClientSecret: "b_T8Q~iR~jGtJKVkoXoacEBqZeBbXX_.2UktBa1y",
-		RedirectURL:  "https://risings-pm-backend-o5bz.onrender.com/auth/callback",
+		RedirectURL:  "http://localhost:8080/auth/callback",
 		Scopes: []string{
 			"https://graph.microsoft.com/User.Read",
 		},
@@ -92,21 +92,23 @@ func handleMicrosoftCallback(w http.ResponseWriter, r *http.Request) {
 	cookie := http.Cookie{
 		Name:     "jwt",
 		Value:    signedToken,
-		Expires:  time.Now().Add(24 * time.Hour),
+		Expires:  time.Now().Add(24 * time.Hour), // Adjust as needed
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteLaxMode,
+		Secure: true,
+		SameSite: http.SameSiteNoneMode,
 	}
 	http.SetCookie(w, &cookie)
 
+	// Set JWT in response header
 	response := map[string]interface{}{
 		"message": "Authentication successful",
 	}
 	json.NewEncoder(w).Encode(response)
 
-	// Redirect to frontend URL
-	redirectURL := "http://localhost:5173/auth/callback" // Adjust with your frontend URL
+	// Redirect to the frontend callback URL
+	//redirectURL := "http://localhost:5173/auth/callback"
+	redirectURL := "https://pm-frontend-swart.vercel.app/auth/callback"
 	http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 }
 
@@ -179,7 +181,10 @@ func getUserDetails(w http.ResponseWriter, r *http.Request) {
 		"email": user.Email,
 	}
 
-	json.NewEncoder(w).Encode(userDetails)
+	err = json.NewEncoder(w).Encode(userDetails)
+	if err != nil {
+		return
+	}
 }
 
 func AuthRoutes(r *mux.Router) {
