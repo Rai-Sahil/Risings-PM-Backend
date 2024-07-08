@@ -12,7 +12,7 @@ func main() {
 	router := mux.NewRouter()
 
 	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"*"},
+		AllowedOrigins:   []string{"https://pm-frontend-swart.vercel.app"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Authorization", "Content-Type"},
 		AllowCredentials: true,
