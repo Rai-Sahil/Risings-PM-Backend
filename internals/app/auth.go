@@ -66,8 +66,6 @@ func handleMicrosoftCallback(w http.ResponseWriter, r *http.Request) {
 		Value:    fmt.Sprintf("%d", userID),
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   true,
-		SameSite: http.SameSiteNoneMode,
 	})
 
 	fmt.Printf("Set userID cookie with value: %d\n", userID)
