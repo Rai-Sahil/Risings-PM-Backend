@@ -7,5 +7,5 @@ import (
 
 func SubTasksRoutes(r *mux.Router) {
 	r.HandleFunc("/addSubTask", handlers.InsertSubTaskHandler).Methods("POST")
-	r.HandleFunc("/getSubTasks", handlers.GetSubTasksHandler).Methods("GET")
+	r.HandleFunc("/getSubTasks/{taskId}", handlers.GetSubTasksHandler).Methods("GET")
 }

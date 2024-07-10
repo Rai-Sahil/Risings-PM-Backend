@@ -22,4 +22,6 @@ func ReminderRoutes(r *mux.Router) {
 
 	r.HandleFunc("/getPendingReminderCountDueToday/{assignee_id}", handlers.GetPendingReminderDueTodayCountByUserIdHandler).
 		Methods("GET")
+
+	r.HandleFunc("/getPendingReminderDueTodayMultipleUsers", handlers.GetPendingReminderDueTodayByMultipleUsersHandler).Methods("POST")
 }

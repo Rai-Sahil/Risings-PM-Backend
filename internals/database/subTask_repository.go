@@ -22,7 +22,7 @@ func GetSubTasks(taskId int64) ([]models.SubTask, error) {
 	}
 
 	var subTasks []models.SubTask
-	if err := db.Where("task_id = ?", taskId).Find(&subTasks).Error; err != nil {
+	if err := db.Where("task_id = ?", taskId).Preload("Assignee").Find(&subTasks).Error; err != nil {
 		return nil, err
 	}
 

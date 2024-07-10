@@ -122,3 +122,21 @@ func GetPendingReminderDueTodayCountByUserId(userID int64) (int64, error) {
 
 	return count, nil
 }
+
+func GetPendingReminderDueTodayByMultipleUsers(userID []int64) ([]models.Reminder, error) {
+	db, err := Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	var reminders []models.Reminder
+	today := time.Now().Format("2006-01-02")
+
+	if err := db.Where("assignee_id IN (?) AND status = ? AND DATE(due_date) = ?", userID, "Pending", today).
+		Order("due_date ASC").
+		Find(&reminders).Error; err != nil {
+		return nil, err
+	}
+
+	return reminders, nil
+}

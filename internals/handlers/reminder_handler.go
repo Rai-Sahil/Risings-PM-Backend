@@ -146,3 +146,29 @@ func GetPendingReminderDueTodayCountByUserIdHandler(w http.ResponseWriter, r *ht
 	}
 	w.WriteHeader(http.StatusOK)
 }
+
+func GetPendingReminderDueTodayByMultipleUsersHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	var request struct {
+		UserId []int64 `json:"user_id"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+		return
+	}
+
+	reminders, err := database.GetPendingReminderDueTodayByMultipleUsers(request.UserId)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
+	if err := json.NewEncoder(w).Encode(reminders); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
