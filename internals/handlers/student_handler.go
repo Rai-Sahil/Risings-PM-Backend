@@ -79,7 +79,7 @@ func GetStudentHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetStudentByIDHandler(w http.ResponseWriter, r *http.Request) {
-	studentID := mux.Vars(r)["studentID"]
+	studentID := mux.Vars(r)["id"]
 	student, err := database.GetStudentByID(studentID)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)

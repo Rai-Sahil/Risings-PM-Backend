@@ -258,3 +258,49 @@ func GetTasksDueThisWeekByUserIds(userIds []int64) ([]models.Task, error) {
 
 	return tasks, nil
 }
+
+func GetTasksCountGroupByStatusByGoalId(goalId int64) (map[string]int64, error) {
+	db, err := Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	type StatusCount struct {
+		Status string `json:"status"`
+		Count  int64  `json:"count"`
+	}
+
+	var statusCounts []StatusCount
+	if err := db.
+		Model(&models.Task{}).
+		Select("status, COUNT(*) as count").
+		Where("goal_id = ?", goalId).
+		Group("status").
+		Scan(&statusCounts).Error; err != nil {
+		return nil, err
+	}
+
+	countMap := make(map[string]int64)
+	for _, count := range statusCounts {
+		countMap[count.Status] = count.Count
+	}
+
+	return countMap, nil
+}
+
+func GetOverDueIncompleteTasksCountByGoalId(goalId int64) (int64, error) {
+	db, err := Connect()
+	if err != nil {
+		return -1, err
+	}
+
+	var count int64
+	if err := db.
+		Model(&models.Task{}).
+		Where("status != ? AND goal_id = ? AND due_date < ?", "Completed", goalId, time.Now()).
+		Count(&count).Error; err != nil {
+		return -1, err
+	}
+
+	return count, nil
+}

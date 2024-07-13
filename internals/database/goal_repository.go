@@ -38,7 +38,7 @@ func GetInCompletedGoalsCountByStudentId(studentId int64) (int64, error) {
 	}
 	var count int64
 	if err := db.
-		Where("id = ? AND status = ?", studentId, "Pending").
+		Where("student_id = ? AND status = ?", studentId, "Pending").
 		Model(&models.Goal{}).
 		Count(&count).Error; err != nil {
 		return -1, err

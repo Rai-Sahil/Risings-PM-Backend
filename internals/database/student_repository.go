@@ -36,7 +36,10 @@ func GetStudentByID(studentID string) (models.Student, error) {
 	}
 
 	var student models.Student
-	if err := db.Preload("Assignee").First(&student, studentID).Error; err != nil {
+	if err := db.
+		Where("id = ?", studentID).
+		Preload("Assignee").
+		First(&student, studentID).Error; err != nil {
 		return models.Student{}, err
 	}
 	return student, nil

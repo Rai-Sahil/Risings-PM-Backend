@@ -357,3 +357,48 @@ func GetCompletedTasksDueTodayCountHandler(w http.ResponseWriter, r *http.Reques
 	}
 	w.WriteHeader(http.StatusOK)
 }
+
+func GetTasksCountGroupByStatusByGoalIdHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	goalIdStr := mux.Vars(r)["goal_id"]
+	goalId, err := strconv.ParseInt(goalIdStr, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
+	statusCounts, err := database.GetTasksCountGroupByStatusByGoalId(goalId)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
+	if err := json.NewEncoder(w).Encode(statusCounts); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func GetOverDueIncompleteTasksCountByGoalIdHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	goalIdStr := mux.Vars(r)["goal_id"]
+	goalId, err := strconv.ParseInt(goalIdStr, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
+	statusCounts, err := database.GetOverDueIncompleteTasksCountByGoalId(goalId)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
+	if err := json.NewEncoder(w).Encode(statusCounts); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
