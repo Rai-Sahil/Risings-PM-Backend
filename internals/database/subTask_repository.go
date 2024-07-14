@@ -57,3 +57,23 @@ func UpdateSubTask(subTask models.SubTask) error {
 
 	return nil
 }
+
+func DeleteSubTask(subTaskID int64) error {
+	db, err := Connect()
+	if err != nil {
+		return err
+	}
+
+	tx := db.Begin()
+
+	if err := tx.Where("id = ?", subTaskID).Delete(&models.SubTask{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
+}

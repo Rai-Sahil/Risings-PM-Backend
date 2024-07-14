@@ -304,3 +304,28 @@ func GetOverDueIncompleteTasksCountByGoalId(goalId int64) (int64, error) {
 
 	return count, nil
 }
+
+func DeleteTask(taskID int64) error {
+	db, err := Connect()
+	if err != nil {
+		return err
+	}
+
+	tx := db.Begin()
+
+	if err := tx.Where("task_id = ?", taskID).Delete(&models.SubTask{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Where("id = ?", taskID).Delete(&models.Task{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
+}

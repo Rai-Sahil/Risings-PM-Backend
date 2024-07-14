@@ -30,4 +30,5 @@ func TaskRoutes(r *mux.Router) {
 
 	r.HandleFunc("/getTasksCountGroupByStatusByGoalId/{goal_id}", handlers.GetTasksCountGroupByStatusByGoalIdHandler).Methods("GET")
 	r.HandleFunc("/getOverdueIncompleteTasksCountByGoalId/{goal_id}", handlers.GetOverDueIncompleteTasksCountByGoalIdHandler).Methods("GET")
+	r.HandleFunc("/deleteTask/{task_id}", handlers.DeleteTaskHandler).Methods("DELETE")
 }

@@ -107,3 +107,21 @@ func UpdateSubTaskHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	_, _ = w.Write([]byte("Sub Task updated"))
 }
+
+func DeleteSubTaskHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	taskIdStr := mux.Vars(r)["subTaskId"]
+	taskId, err := strconv.ParseInt(taskIdStr, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte("Invalid student ID"))
+	}
+
+	err = database.DeleteSubTask(taskId)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
+	w.WriteHeader(http.StatusOK)
+}

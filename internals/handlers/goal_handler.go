@@ -225,3 +225,20 @@ func GetInCompleteGoalsHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
+
+func DeleteGoalHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	goalIdStr := mux.Vars(r)["goal_id"]
+	goalID, err := strconv.ParseInt(goalIdStr, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte("Invalid goal ID"))
+	}
+
+	if err := database.DeleteGoal(goalID); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
+	w.WriteHeader(http.StatusOK)
+}

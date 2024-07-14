@@ -18,4 +18,5 @@ type Task struct {
 	Goal       Goal          `gorm:"foreignKey:GoalID;references:ID" json:"goal"`
 	Watchers   pq.Int64Array `gorm:"type:bigint[]" json:"watchers"`
 	Comments   pq.Int64Array `gorm:"type:bigint[]" json:"comments"`
+	SubTasks   []SubTask     `gorm:"foreignKey:TaskID;constraint:OnDelete:CASCADE;" json:"subtasks"`
 }

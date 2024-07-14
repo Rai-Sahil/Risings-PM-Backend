@@ -402,3 +402,20 @@ func GetOverDueIncompleteTasksCountByGoalIdHandler(w http.ResponseWriter, r *htt
 
 	w.WriteHeader(http.StatusOK)
 }
+
+func DeleteTaskHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	taskIdStr := mux.Vars(r)["task_id"]
+	taskId, err := strconv.ParseInt(taskIdStr, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
+	if err := database.DeleteTask(taskId); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
+	w.WriteHeader(http.StatusOK)
+}

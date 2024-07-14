@@ -147,3 +147,29 @@ func UpdateGoal(goal models.Goal) error {
 
 	return nil
 }
+
+func DeleteGoal(goalId int64) error {
+	db, err := Connect()
+	if err != nil {
+		return err
+	}
+
+	tx := db.Begin()
+
+	var goal models.Goal
+	if err := tx.Where("id = ?", goalId).First(&goal).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Where("id = ?", goalId).Delete(&models.Goal{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
+}
