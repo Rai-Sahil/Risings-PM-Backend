@@ -4,17 +4,21 @@ import (
 	"pm_backend/internals/models"
 )
 
-func InsertSubTask(subTasks models.SubTask) error {
+func InsertSubTask(subTasks models.SubTask) (models.SubTask, error) {
 	db, err := Connect()
 	if err != nil {
-		return err
+		return subTasks, err
 	}
 
 	if err := db.Create(&subTasks).Error; err != nil {
-		return err
+		return subTasks, err
 	}
 
-	return nil
+	if err := db.Preload("Assignee").First(&subTasks, subTasks.ID).Error; err != nil {
+		return subTasks, err
+	}
+
+	return subTasks, nil
 }
 
 func GetSubTasks(taskId int64) ([]models.SubTask, error) {

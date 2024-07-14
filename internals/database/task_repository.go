@@ -6,16 +6,21 @@ import (
 	"time"
 )
 
-func InsertTask(task models.Task) error {
+func InsertTask(task models.Task) (models.Task, error) {
 	db, err := Connect()
 	if err != nil {
-		return err
+		return task, err
 	}
 
 	if err := db.Create(&task).Error; err != nil {
-		return err
+		return task, err
 	}
-	return nil
+
+	if err := db.Preload("Assignee").First(&task, task.ID).Error; err != nil {
+		return task, err
+	}
+
+	return task, nil
 }
 
 func UpdateTask(task models.Task) error {
