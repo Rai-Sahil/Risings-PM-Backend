@@ -29,7 +29,78 @@ func AddReminderHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = w.Write([]byte(err.Error()))
 	}
-	
+
+	if err := json.NewEncoder(w).Encode(reminder); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func DeleteReminderHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	reminderIdStr := mux.Vars(r)["reminderId"]
+	reminderId, err := strconv.ParseInt(reminderIdStr, 10, 64)
+
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
+	err = database.DeleteReminder(reminderId)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func UpdateReminderHandler(w http.ResponseWriter, r *http.Request) {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
+	defer r.Body.Close()
+	var reminder models.Reminder
+
+	err = json.Unmarshal(body, &reminder)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
+	if reminder, err = database.UpdateReminder(reminder); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
+	if err := json.NewEncoder(w).Encode(reminder); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func GetReminderHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	reminderIdStr := mux.Vars(r)["reminderId"]
+	reminderId, err := strconv.ParseInt(reminderIdStr, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
+	reminder, err := database.GetReminder(strconv.FormatInt(reminderId, 10))
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
 	if err := json.NewEncoder(w).Encode(reminder); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = w.Write([]byte(err.Error()))

@@ -22,6 +22,51 @@ func InsertReminder(reminder models.Reminder) (models.Reminder, error) {
 	return models.Reminder{}, nil
 }
 
+func DeleteReminder(id int64) error {
+	db, err := Connect()
+	if err != nil {
+		return err
+	}
+
+	if err := db.Where("id = ?", id).Delete(&models.Reminder{}).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func UpdateReminder(reminder models.Reminder) (models.Reminder, error) {
+	db, err := Connect()
+	if err != nil {
+		return models.Reminder{}, err
+	}
+
+	if err := db.Save(&reminder).Error; err != nil {
+		return models.Reminder{}, err
+	}
+
+	if err := db.Preload("Assignee").First(&reminder, reminder.ID).Error; err != nil {
+		return models.Reminder{}, err
+	}
+
+	return reminder, nil
+}
+
+func GetReminder(id string) (models.Reminder, error) {
+	db, err := Connect()
+	if err != nil {
+		return models.Reminder{}, err
+	}
+
+	var reminder models.Reminder
+
+	if err := db.Preload("Assignee").First(&reminder, id).Error; err != nil {
+		return models.Reminder{}, err
+	}
+
+	return reminder, nil
+}
+
 func GetPendingReminderDueTodayByAssigneeID(assigneeID int64) ([]models.Reminder, error) {
 	db, err := Connect()
 	if err != nil {

@@ -8,6 +8,11 @@ import (
 func ReminderRoutes(r *mux.Router) {
 	r.HandleFunc("/addReminder", handlers.AddReminderHandler).Methods("POST")
 
+	r.HandleFunc("/getReminder/{reminderId}", handlers.GetReminderHandler).Methods("GET")
+	r.HandleFunc("/deleteReminder/{reminderId}", handlers.DeleteReminderHandler).Methods("DELETE")
+
+	r.HandleFunc("/updateReminder", handlers.UpdateReminderHandler).Methods("POST")
+
 	r.HandleFunc("/completeReminder/{id}", handlers.CompleteReminderHandler).Methods("GET")
 
 	r.HandleFunc("/getPendingReminderDueToday/{assignee_id}", handlers.GetPendingReminderDueTodayByAssigneeIDHandler).
