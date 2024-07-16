@@ -18,7 +18,6 @@ func Connect() (*gorm.DB, error) {
 
 	cfg := config.GetConfig()
 	connectionString := cfg.PostgresConnectionString
-	connectionString = "postgres://postgres:sql@localhost:5432/risings_pm?sslmode=disable"
 
 	db, err := gorm.Open(postgres.Open(connectionString), &gorm.Config{})
 	if err != nil {
