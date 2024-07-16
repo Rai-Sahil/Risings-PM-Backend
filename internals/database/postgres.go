@@ -1,6 +1,7 @@
 package database
 
 import (
+	"fmt"
 	_ "github.com/lib/pq"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -17,9 +18,11 @@ func Connect() (*gorm.DB, error) {
 
 	cfg := config.GetConfig()
 	connectionString := cfg.PostgresConnectionString
+	connectionString = "postgres://postgres:sql@localhost:5432/risings_pm?sslmode=disable"
 
 	db, err := gorm.Open(postgres.Open(connectionString), &gorm.Config{})
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 
@@ -33,6 +36,7 @@ func Connect() (*gorm.DB, error) {
 		&models.Comment{},
 		&models.Reminder{},
 	)
+
 	if err != nil {
 		return nil, err
 	}

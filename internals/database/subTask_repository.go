@@ -81,3 +81,20 @@ func DeleteSubTask(subTaskID int64) error {
 
 	return nil
 }
+
+func GetCommentsBySubTaskID(subTaskID int64) ([]models.Comment, error) {
+	db, err := Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	var comments []models.Comment
+	if err := db.
+		Where("sub_task_id = ?", subTaskID).
+		Preload("User").
+		Find(&comments).Error; err != nil {
+		return nil, err
+	}
+
+	return comments, nil
+}

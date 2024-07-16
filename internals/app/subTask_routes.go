@@ -13,4 +13,6 @@ func SubTasksRoutes(r *mux.Router) {
 	r.HandleFunc("/updateSubTask", handlers.UpdateSubTaskHandler).Methods("POST")
 
 	r.HandleFunc("/deleteSubTask/{subTaskId}", handlers.DeleteSubTaskHandler).Methods("DELETE")
+
+	r.HandleFunc("/getComments/{subTaskId}", handlers.GetCommentsBySubTaskIDHandler).Methods("GET")
 }

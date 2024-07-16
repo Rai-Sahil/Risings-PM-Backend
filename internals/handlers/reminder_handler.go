@@ -25,10 +25,16 @@ func AddReminderHandler(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte(err.Error()))
 	}
 
-	if err := database.InsertReminder(reminder); err != nil {
+	if reminder, err = database.InsertReminder(reminder); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = w.Write([]byte(err.Error()))
 	}
+	
+	if err := json.NewEncoder(w).Encode(reminder); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
 	w.WriteHeader(http.StatusOK)
 }
 
@@ -150,7 +156,7 @@ func GetPendingReminderDueTodayCountByUserIdHandler(w http.ResponseWriter, r *ht
 func GetPendingReminderDueTodayByMultipleUsersHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	var request struct {
-		UserId []int64 `json:"user_id"`
+		UserIds []int64 `json:"user_id"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
@@ -159,7 +165,7 @@ func GetPendingReminderDueTodayByMultipleUsersHandler(w http.ResponseWriter, r *
 		return
 	}
 
-	reminders, err := database.GetPendingReminderDueTodayByMultipleUsers(request.UserId)
+	reminders, err := database.GetPendingReminderDueTodayByMultipleUsers(request.UserIds)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = w.Write([]byte(err.Error()))

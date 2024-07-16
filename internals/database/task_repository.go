@@ -77,14 +77,14 @@ func GetTaskByID(taskID int64) (models.Task, error) {
 	return task, nil
 }
 
-func GetPendingAdminTasks() ([]models.Task, error) {
+func GetAllAdminTasks() ([]models.Task, error) {
 	db, err := Connect()
 	if err != nil {
 		return nil, err
 	}
 
 	var tasks []models.Task
-	if err := db.Where("status = ? AND goal_id IS NULL", "Pending").Preload("Assignee").Find(&tasks).Error; err != nil {
+	if err := db.Where("goal_id IS NULL").Preload("Assignee").Find(&tasks).Error; err != nil {
 		return nil, err
 	}
 	return tasks, nil
@@ -140,14 +140,11 @@ func GetTasksDueThisWeek() ([]models.Task, error) {
 	}
 
 	now := time.Now()
-	startOfWeek := now.AddDate(0, 0, -int(now.Weekday()))
-	endOfWeek := startOfWeek.AddDate(0, 0, 6)
-
+	sevenDaysLater := now.AddDate(0, 0, 7)
 	var tasks []models.Task
+
 	if err := db.
-		Where("due_date >= ? AND due_date <= ?",
-			startOfWeek.Format("2006-01-02"),
-			endOfWeek.Format("2006-01-02")).
+		Where("due_date BETWEEN ? AND ?", now, sevenDaysLater).
 		Preload("Assignee").
 		Find(&tasks).Error; err != nil {
 		return nil, err

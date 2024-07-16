@@ -28,6 +28,7 @@ func main() {
 	app.AuthRoutes(router)
 	app.CalenderRoutes(router)
 	app.SubTasksRoutes(router)
+	app.GoalTagRoutes(router)
 
 	port := os.Getenv("PORT")
 	if port == "" {

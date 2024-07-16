@@ -130,3 +130,26 @@ func DeleteSubTaskHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
+
+func GetCommentsBySubTaskIDHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	taskIdStr := mux.Vars(r)["subTaskId"]
+	taskId, err := strconv.ParseInt(taskIdStr, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte("Invalid student ID"))
+	}
+
+	comments, err := database.GetCommentsBySubTaskID(taskId)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
+	if err := json.NewEncoder(w).Encode(comments); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
