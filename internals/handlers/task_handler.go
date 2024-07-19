@@ -74,11 +74,18 @@ func AddCommentHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = w.Write([]byte(err.Error()))
 	}
-	err = database.InsertComment(comment)
+
+	comment, err = database.InsertComment(comment)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = w.Write([]byte(err.Error()))
 	}
+
+	if err := json.NewEncoder(w).Encode(comment); err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(err.Error()))
+	}
+
 	w.WriteHeader(http.StatusCreated)
 }
 
@@ -278,7 +285,7 @@ func GetTasksCompleteByUserIdThisWeekHandler(w http.ResponseWriter, r *http.Requ
 	w.WriteHeader(http.StatusOK)
 }
 
-func GetPendingTasksDueTodayCountHandler(w http.ResponseWriter, r *http.Request) {
+func GetPendingTasksDueTodayHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	userIdStr := mux.Vars(r)["user_id"]
 	userId, err := strconv.ParseInt(userIdStr, 10, 64)
@@ -287,13 +294,13 @@ func GetPendingTasksDueTodayCountHandler(w http.ResponseWriter, r *http.Request)
 		_, _ = w.Write([]byte(err.Error()))
 	}
 
-	count, err := database.GetPendingTasksCountDueTodayByUserId(userId)
+	tasks, err := database.GetPendingTasksDueTodayByUserId(userId)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = w.Write([]byte(err.Error()))
 	}
 
-	if err := json.NewEncoder(w).Encode(count); err != nil {
+	if err := json.NewEncoder(w).Encode(tasks); err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		_, _ = w.Write([]byte(err.Error()))
 	}

@@ -35,16 +35,21 @@ func UpdateTask(task models.Task) error {
 	return nil
 }
 
-func InsertComment(comment models.Comment) error {
+func InsertComment(comment models.Comment) (models.Comment, error) {
 	db, err := Connect()
 	if err != nil {
-		return err
+		return models.Comment{}, err
 	}
 
 	if err := db.Create(&comment).Error; err != nil {
-		return err
+		return models.Comment{}, err
 	}
-	return nil
+
+	if err := db.Preload("Task").Preload("SubTask").Preload("User").First(&comment, comment.ID).Error; err != nil {
+		return models.Comment{}, err
+	}
+
+	return comment, nil
 }
 
 func GetCommentsByTaskID(taskID int64) ([]models.Comment, error) {
@@ -146,6 +151,7 @@ func GetTasksDueThisWeek() ([]models.Task, error) {
 	if err := db.
 		Where("due_date BETWEEN ? AND ?", now, sevenDaysLater).
 		Preload("Assignee").
+		Preload("Goal").Preload("Goal.Student").
 		Find(&tasks).Error; err != nil {
 		return nil, err
 	}
@@ -201,24 +207,25 @@ func GetTasksCompleteByUserIdThisWeekCount(userId int64) (int64, error) {
 	return count, nil
 }
 
-func GetPendingTasksCountDueTodayByUserId(userId int64) (int64, error) {
+func GetPendingTasksDueTodayByUserId(userId int64) ([]models.Task, error) {
 	db, err := Connect()
 	if err != nil {
-		return -1, err
+		return []models.Task{}, err
 	}
 
-	now := time.Now().Format("2006-01-02")
-	var count int64
+	var tasks []models.Task
 
 	err = db.Model(models.Task{}).
-		Where("assignee_id = ? AND due_date = ? AND status = ?", userId, now, "Pending").
-		Count(&count).Error
+		Where("assignee_id = ? AND status != ?", userId, "Completed").
+		Preload("Assignee").
+		Preload("Goal").Preload("Goal.Student").
+		Find(&tasks).Error
 
 	if err != nil {
-		return -1, err
+		return []models.Task{}, err
 	}
 
-	return count, nil
+	return tasks, nil
 }
 
 func GetCompletedTasksCountDueTodayByUserId(userId int64) (int64, error) {

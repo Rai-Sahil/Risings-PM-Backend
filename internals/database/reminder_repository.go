@@ -19,7 +19,7 @@ func InsertReminder(reminder models.Reminder) (models.Reminder, error) {
 	if err := db.Preload("Assignee").First(&reminder, reminder.ID).Error; err != nil {
 		return reminder, err
 	}
-	return models.Reminder{}, nil
+	return reminder, nil
 }
 
 func DeleteReminder(id int64) error {
