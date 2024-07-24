@@ -338,3 +338,43 @@ func DeleteTask(taskID int64) error {
 
 	return nil
 }
+
+func GetUsersUpdateForToday() ([]map[string]interface{}, error) {
+	db, err := Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	today := time.Now().Format("2006-01-02")
+
+	var users []models.User
+	if err := db.Find(&users).Error; err != nil {
+		return nil, err
+	}
+
+	var userTaskCounts []map[string]interface{}
+
+	for _, user := range users {
+		var dueCount int64
+		if err := db.Model(&models.Task{}).
+			Where("due_date = ? AND assignee_id = ?", today, user.ID).
+			Count(&dueCount).Error; err != nil {
+			return nil, err
+		}
+
+		var completedCount int64
+		if err := db.Model(&models.Task{}).
+			Where("due_date = ? AND assignee_id = ? AND status = ?", today, user.ID, "Completed").
+			Count(&completedCount).Error; err != nil {
+			return nil, err
+		}
+
+		userTaskCounts = append(userTaskCounts, map[string]interface{}{
+			"name":      user.Name,
+			"due":       int(dueCount),
+			"completed": int(completedCount),
+		})
+	}
+
+	return userTaskCounts, nil
+}
