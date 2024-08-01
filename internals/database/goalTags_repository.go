@@ -56,7 +56,6 @@ func (tm *TagManager) ChangeTagName(oldName, newName string) error {
 	return nil
 }
 
-// PrintTags prints all the tags for debugging purposes
 func (tm *TagManager) PrintTags() {
 	for _, tag := range tm.tags {
 		fmt.Printf("Tag: %s, Color: %s\n", tag.Name, tag.Color)

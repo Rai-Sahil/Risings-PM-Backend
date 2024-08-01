@@ -31,15 +31,23 @@ func GetAllUsers() ([]models.User, error) {
 	return users, nil
 }
 
-func GetUserDetails(userId []int64) ([]models.User, error) {
+func SetUserStatus(userId int64, status string) error {
 	db, err := Connect()
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	var users []models.User
-	if err := db.Where("id IN (?)", userId).Find(&users).Error; err != nil {
-		return nil, err
+	var user models.User
+	err = db.Where("id = ?", userId).First(&user).Error
+	if err != nil {
+		return err
 	}
-	return users, nil
+
+	user.Status = status
+
+	if err := db.Save(&user).Error; err != nil {
+		return err
+	}
+
+	return nil
 }

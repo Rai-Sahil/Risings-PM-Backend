@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
 	"pm_backend/internals/database"
 	"pm_backend/internals/models"
+	"strconv"
 	"time"
 )
 
@@ -100,4 +102,30 @@ func GetUserHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	w.WriteHeader(http.StatusOK)
+}
+
+func SetUserStatusHandler(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	userIdStr := mux.Vars(r)["user_id"]
+	userId, err := strconv.ParseInt(userIdStr, 10, 64)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"message": "invalid user id"}`))
+	}
+
+	status := mux.Vars(r)["status"]
+	if status == "" {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"message": "status is required"}`))
+		return
+	}
+
+	err = database.SetUserStatus(userId, status)
+	if err != nil {
+		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(`{"message": "invalid status value"}`))
+	}
+
+	w.WriteHeader(http.StatusOK)
+
 }

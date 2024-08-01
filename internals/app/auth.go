@@ -176,10 +176,16 @@ func getUserDetails(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if user.Status == "Kicked" {
+		http.Error(w, "User Kicked", http.StatusForbidden)
+		return
+	}
+
 	userDetails := map[string]interface{}{
-		"id":    user.ID,
-		"name":  user.Name,
-		"email": user.Email,
+		"id":     user.ID,
+		"name":   user.Name,
+		"email":  user.Email,
+		"status": user.Status,
 	}
 
 	err := json.NewEncoder(w).Encode(userDetails)
