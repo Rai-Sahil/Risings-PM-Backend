@@ -104,7 +104,7 @@ func handleMicrosoftCallback(w http.ResponseWriter, r *http.Request) {
 	})
 
 	fmt.Printf("Set userID cookie with value: %d\n", userID)
-	redirectURL := `https://pm-frontend-swart.vercel.app/auth/callback/` + strconv.FormatInt(userID, 10)
+	redirectURL := `https://pm-frontend-swart.vercel.app/dashboard/auth/callback/` + strconv.FormatInt(userID, 10)
 	http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 }
 

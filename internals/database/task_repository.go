@@ -52,6 +52,19 @@ func InsertComment(comment models.Comment) (models.Comment, error) {
 	return comment, nil
 }
 
+func UpdateComment(id int64, content string) error {
+	db, err := Connect()
+	if err != nil {
+		return err
+	}
+
+	if err := db.Model(&models.Comment{}).Where("id = ?", id).Update("content", content).Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func GetCommentsByTaskID(taskID int64) ([]models.Comment, error) {
 	db, err := Connect()
 	if err != nil {

@@ -33,4 +33,6 @@ func TaskRoutes(r *mux.Router) {
 	r.HandleFunc("/deleteTask/{task_id}", handlers.DeleteTaskHandler).Methods("DELETE")
 
 	r.HandleFunc("/getUsersUpdateForToday", handlers.GetUsersUpdateTodayHandler).Methods("GET")
+
+	r.HandleFunc("/updateComment/{id}", handlers.UpdateCommentHandler).Methods("PUT")
 }
