@@ -151,18 +151,16 @@ func GetTasksByUserIdAndGoalId(userIds []int64, goalId int64) ([]models.Task, er
 	return tasks, nil
 }
 
-func GetTasksDueThisWeek() ([]models.Task, error) {
+func GetAllDueTasks() ([]models.Task, error) {
 	db, err := Connect()
 	if err != nil {
 		return nil, err
 	}
 
-	now := time.Now()
-	sevenDaysLater := now.AddDate(0, 0, 7)
 	var tasks []models.Task
 
 	if err := db.
-		Where("due_date BETWEEN ? AND ?", now, sevenDaysLater).
+		Where("status != ?", "Completed").
 		Preload("Assignee").
 		Preload("Goal").Preload("Goal.Student").
 		Find(&tasks).Error; err != nil {

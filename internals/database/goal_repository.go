@@ -1,6 +1,7 @@
 package database
 
 import (
+	"errors"
 	"pm_backend/internals/models"
 )
 
@@ -128,7 +129,7 @@ func GetInCompleteGoals() ([]models.Goal, error) {
 	}
 
 	var goals []models.Goal
-	if err := db.Where("status != ?", "Complete").Find(&goals).Error; err != nil {
+	if err := db.Where("status != ?", "Complete").Preload("Assignee").Find(&goals).Error; err != nil {
 		return nil, err
 	}
 
@@ -172,4 +173,18 @@ func DeleteGoal(goalId int64) error {
 	}
 
 	return nil
+}
+
+func GetGoalsWithStudentNull() ([]models.Goal, error) {
+	db, err := Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	var goals []models.Goal
+	if !errors.Is(err, db.Where("student_id IS NULL").Preload("Assignee").Find(&goals).Error) {
+		return nil, err
+	}
+
+	return goals, nil
 }

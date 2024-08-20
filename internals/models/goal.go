@@ -7,7 +7,7 @@ type Goal struct {
 	Title          string    `gorm:"size:255;not null" json:"title"`
 	Desc           string    `gorm:"size:255" json:"desc"`
 	Status         string    `gorm:"size:255;not null;default:Pending" json:"status"`
-	StudentID      int64     `gorm:"not null" json:"student_id"`
+	StudentID      int64     `gorm:"default:null" json:"student_id"`
 	Student        Student   `gorm:"foreignKey:StudentID;references:ID" json:"student"`
 	AssigneeID     int64     `gorm:"not null" json:"assignee_id"`
 	Assignee       User      `gorm:"foreignKey:AssigneeID;references:ID" json:"assignee"`

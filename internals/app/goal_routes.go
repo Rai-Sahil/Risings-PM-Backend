@@ -20,4 +20,5 @@ func GoalRoutes(r *mux.Router) {
 	r.HandleFunc("/updateGoal", handlers.UpdateGoalHandler).Methods("PUT")
 
 	r.HandleFunc("/deleteGoal/{goal_id}", handlers.DeleteGoalHandler).Methods("DELETE")
+	r.HandleFunc("/getGoalsWithStudentNull", handlers.GetGoalsWithStudentNullHandler).Methods("GET")
 }
