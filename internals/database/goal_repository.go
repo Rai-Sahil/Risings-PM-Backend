@@ -129,7 +129,10 @@ func GetInCompleteGoals() ([]models.Goal, error) {
 	}
 
 	var goals []models.Goal
-	if err := db.Where("status != ?", "Complete").Preload("Assignee").Find(&goals).Error; err != nil {
+	if err := db.Where("status != ?", "Complete").
+		Preload("Assignee").
+		Preload("Student").
+		Find(&goals).Error; err != nil {
 		return nil, err
 	}
 
